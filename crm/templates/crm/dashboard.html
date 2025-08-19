@@ -1,0 +1,93 @@
+{% extends 'crm/base.html' %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2><i class="fas fa-tachometer-alt text-primary"></i> Dashboard</h2>
+            {% if user_type == 'admin' or user_type == 'user' %}
+                <a href="{% url 'customer_create' %}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Add Customer
+                </a>
+            {% endif %}
+        </div>
+
+        <!-- Search Bar -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <form method="get" class="row g-3">
+                    <div class="col-md-10">
+                        <input type="text" name="search" class="form-control" 
+                               placeholder="Search customers..." value="{{ search }}">
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-outline-primary w-100">
+                            <i class="fas fa-search"></i> Search
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Customer List -->
+        <div class="row">
+            {% for customer in customers %}
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card customer-card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ customer.business_name }}</h5>
+                        <p class="card-text">
+                            <i class="fas fa-user"></i> {{ customer.contact_name }}<br>
+                            <i class="fas fa-envelope"></i> {{ customer.email }}<br>
+                            <i class="fas fa-phone"></i> {{ customer.phone }}
+                        </p>
+                        <small class="text-muted">
+                            Created: {{ customer.created_at|date:"M d, Y" }}
+                        </small>
+                    </div>
+                    <div class="card-footer">
+                        <a href="{% url 'customer_detail' customer.pk %}" class="btn btn-primary btn-sm">
+                            <i class="fas fa-eye"></i> View Details
+                        </a>
+                        {% if user_type == 'admin' or user_type == 'user' %}
+                        <a href="{% url 'customer_edit' customer.pk %}" class="btn btn-outline-secondary btn-sm">
+                            <i class="fas fa-edit"></i> Edit
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12">
+                <div class="alert alert-info text-center">
+                    <i class="fas fa-info-circle"></i> No customers found.
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if customers.has_other_pages %}
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
+                {% if customers.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ customers.previous_page_number }}{% if search %}&search={{ search }}{% endif %}">Previous</a>
+                    </li>
+                {% endif %}
+                
+                <li class="page-item active">
+                    <span class="page-link">{{ customers.number }} of {{ customers.paginator.num_pages }}</span>
+                </li>
+                
+                {% if customers.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ customers.next_page_number }}{% if search %}&search={{ search }}{% endif %}">Next</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
